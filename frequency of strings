@@ -1,0 +1,272 @@
+#include<bits/stdc++.h>
+// #include <tr1/unordered_map>
+// using namespace std::tr1;
+using namespace std;
+int to[2000001][27];
+int link[200000];
+int term[200000];
+
+int sn=1;
+map<int, string> m;
+// map<string, int>m2;
+map<string,vector<int> > m3;
+
+void add_str(string pat,int k)
+{
+	int curr1=0;
+	string s="";
+	//int sn=1;
+	// cout<<pat<<endl;
+	int z=pat.length();
+	for(unsigned int i=0;i<z;i++)
+	{
+		s+=pat[i];
+
+		if(to[curr1][pat[i]-'a']==-1)
+		{
+			to[curr1][pat[i]-'a']=sn++;
+
+		}
+		curr1 = to[curr1][pat[i]-'a'];
+		//m[curr1]=s;
+
+	}
+	term[curr1]=curr1;
+	//cout<<m[curr]<<endl;
+	m[curr1]=s;
+	// m2[s]=k;
+}
+
+
+void push_links()
+{
+	queue<int> q;
+	q.push(0);
+	while(!q.empty())
+	{
+		int V=q.front();
+		q.pop();
+		int U=link[V];
+		for(int i=0;i<26;i++)
+		{
+			int c=to[V][i];
+			if(c!=-1)
+			{
+				if(V==0)
+				{
+					link[c]=0;
+
+				}
+				else
+				{
+					int temp=U;
+					while(1)
+					{
+						if(to[temp][i]!=-1||temp==0)
+						{
+							link[c]=max(0,to[temp][i]);
+							break;
+						}
+						else if(to[temp][i]==-1)
+						{
+							temp=link[temp];
+							continue;
+						}
+						 
+					}
+				}
+				q.push(c);
+			}
+		}
+	}
+}
+
+
+void patternsearch(string s)
+{
+	int curr=0;
+	int z=s.length();
+	for(unsigned int i=0;i<z;i++)
+	{
+		int c=s[i]-'a';
+		while(to[curr][c]==-1)
+		{
+			curr=link[curr];
+			if(curr==0&&to[curr][c]==-1)
+			{
+				break;
+			}
+			// continue;
+		}
+		// cout<<to[curr][c]<<endl;
+		if(to[curr][c]!=-1)
+		{
+			int node = to[curr][c];
+			curr=node;
+			if(term[node])
+			{
+				int lenout = m[node].length();
+				// cout<<i-lenout+1<<"to "<<i<<" "<<s[i]<<" index in pattern " << i <<" node is "<<node<<" "<<m[node]<<endl;
+				m3[m[node]].push_back(i-lenout+1);
+			}
+			// cout<<"link["<<node<<"] "<<link[node]<<endl;
+			while(link[node]>0)
+			{
+				if(term[link[node]])
+				{
+					int lenout = m[link[node]].length();
+
+					m3[m[link[node]]].push_back(i-lenout+1);
+
+
+					//m2[m[link[node]]]=lenout;
+					// cout<<i-lenout+1<<"to "<<i<<" "<<s[i]<<" index in pattern " << i <<" node is "<<link[node]<<" "<<m[link[node]]<<endl;
+					
+				}
+				node = link[node];
+			}
+		}
+
+	}
+}
+
+
+int main()
+{
+	// ios_base::sync_with_stdio(false); 
+ //    cin.tie(NULL); 
+	// char s1[100000];
+	// scanf("%s",s1);
+      //ios_base::sync_with_stdio(0); //cin.tie(0)cout.tie(0);cout.setf(ios::fixed); cout.precision(20);
+
+	string s;
+	// s=s1;
+	cin>>s;
+	int n;
+	scanf("%d",&n);
+	string pat[n];
+	int k1[n];
+
+	memset(to,-1,sizeof(to));
+	memset(link,0,sizeof(link));
+	memset(term,0,sizeof(term));
+
+	m.clear();
+	// m1.clear();
+	m3.clear();
+	for(int i=0;i<n;i++)
+	{
+		int k;
+		string sk;
+		// char sk1[100000];
+		// scanf("%d%s",&k,sk1);
+		//cout<<"187"<<endl;
+		cin>>k>>sk;
+		// sk=sk1;
+		pat[i]=sk;
+		k1[i]=k;
+		//cout<<endl;
+		      //full form--add longest suffix which is prefix
+		//cout<<i<<" "<<pat[i]<<endl;
+	}
+	//cout<<"192"<<endl;
+	// for(int i=0;i<n;i++)
+	// {
+	// 	cout<<pat[i]<<endl;
+	// }
+	for(int j=0;j<n;j++)
+	{
+		if(pat[j].length()<=s.length()) {add_str(pat[j],k1[j]);}
+	}
+	push_links();
+	// for(int i=0;i<sn;i++)
+	// {
+	// 	cout<<"term["<<i<<"] "<<term[i]<<endl;
+	// }
+	// for(int i=0;i<sn;i++)
+	// {
+	// 	cout<<"link["<<i<<"] "<<link[i]<<endl;
+	// }
+	// for(int i=0;i<sn;i++)
+	// {
+	// 	for(int j=0;j<26;j++)
+	// 	{
+	// 		cout<<to[i][j]<<" ";
+	// 	}
+	// 	cout<<endl;
+	// }
+	patternsearch(s);
+	for(int j=0;j<n;j++)
+	{
+		vector<int> v = m3[pat[j]];
+		 // cout<<"sizeof l "<<l.size()<<" sizeof k1 "<<k1[j]<<endl;
+		if(v.size()<k1[j])
+		{
+			printf("-1\n");
+			 continue;
+		}
+		// int min1=INT_MAX;
+		// for(list<int>::iterator it=l.begin();it!=l.end();it++)
+		// {
+		// 	cout<<(*it)<<" ";
+		// }
+		// cout<<endl;
+		// if(l.size()<k1[j])
+		// {
+		// 	// printf("-1\n");
+		// 	continue;
+		// }
+		// list<int>::iterator it=l.begin();
+		// list<int>::iterator it2=l.begin();
+		// int g=1;
+		// while(g<k1[j])
+		// {
+		// 	g++;
+		// 	it2++;
+		// }
+		//cout<<(*it2)<<endl;
+		int min1=INT_MAX;
+		// for(int i=0;i<v.size();i++)
+		// {
+		// 	cout<<v[i]<<" ";
+		// }
+		// cout<<endl;
+		for(int i=0;i<v.size();i++)
+		{
+			
+			if(i+k1[j]-1<v.size())
+			{
+				//cout<<v[i]<<"  "<<v[i+k1[j]-1]<<endl;
+				int val1=v[i];
+				int val2=v[i+k1[j]-1]+pat[j].length()-1;
+				min1=min(min1,val2-val1+1);
+			}
+		}
+		// for(;;it++,it2++)
+		// {
+		// 	if(it==l.end()||it2==l.end())
+		// 	{
+		// 		break;
+		// 	}
+
+		// 	// cout<<(*it2)<<"  "<<*(it)<<endl;
+		// 	int lim1=(*it);
+		// 	int lim2=(*it2+pat[j].length()-1);
+		// 	// cout<<"211"<<(lim1)<<lim2<<endl;
+
+		// 	min1=min(min1,lim2-lim1+1);
+
+
+		// }
+		// if(l.size()==k1[j])
+		// {
+		// 	int lim1=(*it);
+		// 	int lim2=*(it2)+pat[j].length()-1;
+		// 	// cout<<endl;
+		// 	// cout<<(lim1)<<lim2<<endl;
+		// 	min1=INT_MAX;
+		// 	min1=min(min1,lim2-lim1+1);
+		// }
+		printf("%d\n",min1);
+	}
+}
